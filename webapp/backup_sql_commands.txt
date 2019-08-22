@@ -1,0 +1,1 @@
+create table person (id int not null auto_increment, datetime_value timestamp, number_of_people tinyint not null, primary key(id));

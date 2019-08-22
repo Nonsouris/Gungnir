@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <link rel="apple-touch-icon" sizes="76x76" href="../static/img/apple-icon.png">
+  <link rel="icon" type="image/png" href="../static/img/favicon.png">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <title>
+    Paper Dashboard 2 by Creative Tim
+  </title>
+  <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
+  <!--     Fonts and icons     -->
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700,200" rel="stylesheet" />
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet">
+  <!-- CSS Files -->
+  <link href="../static/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="../static/css/paper-dashboard.css?v=2.0.0" rel="stylesheet" />
+  <!-- CSS Just for demo purpose, don't include it in your project -->
+  <link href="../static/demo/demo.css" rel="stylesheet" />
+</head>
+
+<body class="">
+  <div class="wrapper ">
+    <div class="sidebar" data-color="white" data-active-color="danger">
+      <!--
+        Tip 1: You can change the color of the sidebar using: data-color="blue | green | orange | red | yellow"
+    -->
+      <div class="logo">
+         <img src="../static/img/sp.png">
+      </div>
+      <div class="sidebar-wrapper">
+        <ul class="nav">
+          <li class="active ">
+            <a href="./index.html">
+              <i class="nc-icon nc-bank"></i>
+              <p>Index</p>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="main-panel">
+      <!-- Navbar -->
+      <nav class="navbar navbar-expand-lg navbar-absolute fixed-top navbar-transparent">
+        <div class="container-fluid">
+          <div class="navbar-wrapper">
+            <div class="navbar-toggle">
+              <button type="button" class="navbar-toggler">
+                <span class="navbar-toggler-bar bar1"></span>
+                <span class="navbar-toggler-bar bar2"></span>
+                <span class="navbar-toggler-bar bar3"></span>
+              </button>
+            </div>
+            <a class="navbar-brand" href="#pablo">IOT CA1: Resorts World Sentosa v1</a>
+          </div>
+          
+        </div>
+      </nav>
+      <!-- End Navbar -->
+      <!-- <div class="panel-header panel-header-lg">
+  
+  <canvas id="bigDashboardChart"></canvas>
+  
+  
+</div> -->
+      <div class="content">
+        <div class="row">
+          <div class="col-lg-3 col-md-0 col-sm-0">
+          </div>
+          <div class="col-lg-3 col-md-6 col-sm-6">
+            <div class="card card-stats">
+              <div class="card-body ">
+                <div class="row">
+                  <div class="col-5 col-md-4">
+                    <div class="icon-big text-center icon-warning">
+			<img id="light-bulb" src="../static/img/icons/light-bulb-off.png">
+                    </div>
+                  </div>
+                  <div class="col-7 col-md-8">
+                    <div class="numbers">
+                      <p class="card-category">Status of LED</p>
+                      <p class="card-title" id="lightStatus">Off<p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="card-footer ">
+                <hr>
+                <div class="stats">
+                	<button type="button" class="btn btn-outline-primary" id="toggle">Toggle Light</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+		<div class="row">
+			<div class="col-md-12">
+				<div class="card ">
+					<div class="row">
+						<div class="col-md-6">
+							<div class="card-header ">
+								<h5 class="card-title">Real Time</h5>
+							</div>
+							
+							<img id="rt" width="500px" src="https://storage.cloud.google.com/images1703221/current?authuser=1"/>
+							 
+						</div>
+						<div class="col-md-6">
+							<div class="card-header ">
+								<h5 class="card-title">Analysis</h5>
+							</div>
+							<img id="an" width="500px" src="https://storage.cloud.google.com/images1703221/visitor?authuser=1"/>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+        <div class="row">
+          <div class="col-md-12">
+            <div class="card ">
+              <div class="card-header ">
+                <h5 class="card-title">Number of people</h5>
+                <p class="card-category">powered by yolo</p>
+              </div>
+              <div class="card-body ">
+		<div id="chart_div" style="width:100%"></div>
+        	<div id="table_div" style="width:100%"></div>
+              </div>
+              <div class="card-footer ">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+         google.charts.load('current', {'packages':['corechart','table']});
+        // Set a callback to run when the Google Visualization API is loaded.
+        google.charts.setOnLoadCallback(googlecharts_is_ready);
+
+        var chart;
+        var graphdata;
+
+        function reset_status_messages(){
+            $("#status").html("")
+        }
+
+        function googlecharts_is_ready(){
+            $("#buttonloadchart").show()
+            $("#buttonloadchart").click()
+            $("#status").html("Google charts is ready")
+        }
+
+        function loadChart(){
+               getData_and_drawChart()    
+        }
+
+        function getData_and_drawChart(){
+            getNewData()
+        }
+
+
+        function getNewData(){
+            $("#status").html("Fetching data to plot graph...");
+
+            jQuery.ajax({
+                url: "/api/getdata" ,
+                type: 'POST',
+                success: function(ndata, textStatus, xhr){ 
+                    console.log(ndata.chart_data.data)
+                    $("#status").html("Data fetched! Now plotting graph!");
+                    chartdata = ndata.chart_data.data
+                    graphdata = createDataTable(chartdata)
+                    drawLineChart(graphdata)
+                    drawDataTable(graphdata)
+                    $("#status").html("Graph plotted");
+                }//end success
+            });//end ajax
+          } //end getNewData
+
+        function createDataTable(newdata){
+            graphdata = new google.visualization.DataTable();       
+            graphdata.addColumn('string', 'Time');
+            graphdata.addColumn('number', 'Light Value');
+            for (i in newdata) {
+                datetime = newdata[i].datetime_value;
+                jsdatetime = new Date(Date.parse(datetime));
+                jstime = jsdatetime.toLocaleTimeString();
+                light = newdata[i].brightness;
+                graphdata.addRows([[jstime,light]]);
+            }//end for
+            return graphdata
+        }
+        
+        function drawDataTable(graphdata){
+            var table = new google.visualization.Table(document.getElementById('table_div'));
+            table.draw(graphdata, {showRowNumber: true, width: '100%', height: '100%'});
+    
+        }//end drawTable
+
+        function drawLineChart(graphdata) {
+            chart = new google.visualization.LineChart(
+            document.getElementById('chart_div'));
+            chart.draw(graphdata, {legend: 'none', vAxis: {baseline: 0},
+                colors: ['#A0D100']});
+            return 
+        } //end drawChart
+
+        $(document).ready(function(){
+            reset_status_messages()
+
+            setInterval(function () {
+                loadChart()
+            }, 3000);
+        });
+
+</script>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+
+
+
+
+<script><!--code for light toggle-->
+
+
+var imgOne=true;
+var URLimgOne="../static/img/icons/light-bulb-off.png";
+var URLimgTwo="../static/img/icons/light-bulb-on.png";
+
+function updateImg(){
+	var currUrl;
+	if(imgOne){
+		imgOne=false;
+		currUrl=URLimgTwo;
+	}else{
+		imgOne=true;
+		currUrl=URLimgOne;
+	}
+	document.getElementById("light-bulb").src=currUrl;
+}
+
+	          function toggle(){
+	            $.ajax({url: "toggle",
+	                    success: function(result){
+	                                  $("#lightStatus").html(result);
+	                    }
+
+	            })
+		}
+			
+	         
+	          $(document).ready(function(){
+	              $("#toggle").click(function(){
+	      			toggle();
+				updateImg();
+	              });
+		});
+</script>
+<script><!--refresh for yolo image-->
+window.onload = function() {
+    var image = document.getElementById("rt");
+    var image2 = document.getElementById("an");
+    function updateImage() {
+        image.src = image.src.split("?")[0] + "?" + new Date().getTime();
+        image2.src = image2.src.split("?")[0] + "?" + new Date().getTime();
+    }
+
+    setInterval(updateImage, 5000);
+}
+</script>
+
+
+<script>
+document.onkeydown = function(e) {
+    switch (e.keyCode) {
+        case 37:
+            moveL();
+            break;
+        case 38:
+            moveU();
+            break;
+        case 39:
+            moveR();
+            break;
+        case 40:
+            moveD();
+            break;
+    }
+};
+
+
+function moveL(){
+	$.ajax({url: "moveL",
+	success: function(result){
+	}
+
+})
+function moveR(){
+	$.ajax({url: "moveR",
+	success: function(result){
+	}
+
+})
+function moveU(){
+	$.ajax({url: "moveU",
+	success: function(result){
+	}
+
+})
+function moveD(){
+	$.ajax({url: "moveD",
+	success: function(result){
+	}
+
+})
+
+</script>
+
+
+  <!--   Core JS Files   -->
+  <script src="../static/js/core/jquery.min.js"></script>
+  <script src="../static/js/core/popper.min.js"></script>
+  <script src="../static/js/core/bootstrap.min.js"></script>
+  <script src="../static/js/plugins/perfect-scrollbar.jquery.min.js"></script>
+  <!--  Google Maps Plugin    -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_KEY_HERE"></script>
+  <!-- Chart JS -->
+  <script src="../static/js/plugins/chartjs.min.js"></script>
+  <!--  Notifications Plugin    -->
+  <script src="../static/js/plugins/bootstrap-notify.js"></script>
+  <!-- Control Center for Now Ui Dashboard: parallax effects, scripts for the example pages etc -->
+  <script src="../static/js/paper-dashboard.min.js?v=2.0.0" type="text/javascript"></script>
+  <!-- Paper Dashboard DEMO methods, don't include it in your project! -->
+  <script src="../static/demo/demo.js"></script>
+  <script>
+    $(document).ready(function() {
+      // Javascript method's body can be found in assets/assets-for-demo/js/demo.js
+      demo.initChartsPages();
+    });
+  </script>
+</body>
+
+</html>
